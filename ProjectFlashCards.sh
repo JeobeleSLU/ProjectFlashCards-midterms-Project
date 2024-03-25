@@ -1,6 +1,7 @@
 
 
 #this function is under construction :) 
+file_path='./flashcardresources/flashcards/'
 print_center(){
  [[ $# == 0 ]] && return 1
 
@@ -86,10 +87,21 @@ decideToCreate(){
         echo "Question and answer pairs have been stored in: $file_path"
 
 }
-startFlashCard(){
-       for entry in `ls $file_path`; do
-                print_center '$entry'
+displayFilesInDirectory(){
+        directory=$1
+      find "$directory" -type f | while read -r file; do
+    # Extract the filename using basename
+    filename=$(basename "$file")
+    # Print the filename
+    print_center 'Select file'
+    print_center ''
+   print_center "$filename"
         done
+}
+startFlashCard(){
+        clear
+        displayFilesInDirectory 'flashcardresources/flashcards'
+        read userInput
 }
 
 getUserInput(){
