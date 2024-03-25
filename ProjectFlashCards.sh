@@ -1,6 +1,6 @@
 
 
-#this function is under construction :)
+#this function is under construction :) 
 print_center(){
  [[ $# == 0 ]] && return 1
 
@@ -26,7 +26,6 @@ print_center(){
 }
 
 askUser(){
-        clear
          print_center 'press 1 to create a new flash cards press'
 
          print_center 'press 2 to read a Flash Card press '
@@ -43,9 +42,9 @@ decideToCreate(){
         if [ "$store_qa" == "yes" ]; then
             echo "Enter the filename for storing question and answer pairs (e.g., qa_pairs.txt):"
             read filename
-            file_path="$filename"
+            file_path="./flashcardresources/flashcards/$filename"
         else
-            file_path="/tmp/qa_pairs_temp.txt"
+            file_path="/flascardsresources/temp/qa_pairs_temp.txt"
         fi
 
         # Check if the file already exists
@@ -87,6 +86,12 @@ decideToCreate(){
         echo "Question and answer pairs have been stored in: $file_path"
 
 }
+startFlashCard(){
+       for entry in `ls $file_path`; do
+                print_center '$entry'
+        done
+}
+
 getUserInput(){
         read userInput
         case $userInput in
@@ -95,6 +100,7 @@ getUserInput(){
                         echo "Your input is 1"
                         ;;
                 2)
+                        startFlashCard
                         echo "Your Input is 2"
                         ;;
                 0)
@@ -106,10 +112,25 @@ getUserInput(){
                         ;;
         esac
 }
-
+#for creating a leaderboard
+# askForUserName(){
+        
+# }
+checkForResources(){
+        #checks if the directory doesn't exist
+       if [ ! -d flashcardresources/ ]; then 
+       #create a nested directory flashcardresource >{users,flashcards>temp}
+          mkdir -p flashcardresources/{users/,flashcards/temp} && touch flashcardresources/flashcards/temp/qa_pairs_temp.txt
+        
+        fi
+}
 clear
-        echo "Welcome to the Louisian at Quiz!"
+        checkForResources #checks if the flashcard resources dir is present 
+     
+        
         while true; do
+                # askForUserName
+         print_center 'Welcome to the Louisian at Quiz!' 
                 askUser
                 getUserInput
         done
