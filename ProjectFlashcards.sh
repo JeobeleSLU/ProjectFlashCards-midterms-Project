@@ -131,12 +131,15 @@ askForUserName(){
         if [ ! -f ./flashcardresources/users/leaderborads.txt ];
         then
                 touch ./flashcardresources/users/leaderborads.txt 
+                touch ./flashcardresources/users/sorted-leaderborads.txt 
         fi 
         leaderboard=./flashcardresources/users/leaderborads.txt
+        sort -t':' -k2 -nr ./flashcardresources/users/leaderborads.txt > ./flashcardresources/users/sorted-leaderborads.txt
+
 
         echo "Enter your Username"
         
-        read userName
+        read userName | tr '[:upper:]' '[:lower:]'
         #checks if the inputted name is already on the leaderboards
          if grep -q "^$userName:" "$leaderboard"; then
         echo "Username already exists in the leaderboard."
@@ -160,7 +163,7 @@ checkForResources(){
         #checks if the directory doesn't exist
        if [ ! -d flashcardresources/ ]; then 
        #create a nested directory flashcardresource >{users,flashcards>temp}
-          mkdir -p flashcardresources/{users/,flashcards/temp} && touch flashcardresources/flashcards/temp/qa_pairs_temp.txt
+          mkdir -p flashcardresources/{users/,flashcards/temp} && touch ./flashcardresources/flashcards/temp/qa_pairs_temp.txt
         
         fi
 }
