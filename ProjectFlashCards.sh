@@ -124,10 +124,22 @@ getUserInput(){
                         ;;
         esac
 }
+
 #for creating a leaderboard
-# askForUserName(){
+askForUserName(){
+        if [ -f /flashcardresources/users/leaderborads.txt ];
+        then
+                ;   
+        else 
+                touch /flashcardresources/users/leaderborads.txt
         
-# }
+        fi 
+        
+        echo "Enter your Username"
+        read userName
+
+}
+
 checkForResources(){
         #checks if the directory doesn't exist
        if [ ! -d flashcardresources/ ]; then 
@@ -137,8 +149,7 @@ checkForResources(){
         fi
 }
 clear
-        checkForResources #checks if the flashcard resources dir is present 
-     
+        checkForResources #checks if the flashcard resources dir is present  
         
         while true; do
                 # askForUserName
