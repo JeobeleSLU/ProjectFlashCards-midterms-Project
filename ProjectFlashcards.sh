@@ -360,8 +360,7 @@ calculateScoreAndUpdateLeaderboard() {
     updateScore "$correctAnswers" "$totalQuestions" "$userName"
 }
 
-# Example usage:
-calculateScoreAndUpdateLeaderboard $totalQuestions $correctAnswers "$userName"
+calculateScoreAndUpdateLeaderboard $totalQuestions $correctAnswer "$userName"
 
 #checks if the dir flashcardresources directory is not present
 
