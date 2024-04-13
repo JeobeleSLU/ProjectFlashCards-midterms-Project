@@ -76,6 +76,8 @@ askForUserName(){
 }
 
 
+
+
 #ask the user what they want to do
 
 askUser(){
@@ -88,6 +90,46 @@ askUser(){
 
     print_center 'Press 0 to Exit the Program'
 
+}
+sendEmail() {
+
+        local recipient="$1"
+        local subject="$2"
+        local attachment="$3"
+        local body="$4"
+
+# validation for the existence of file
+
+        if [ ! -f "$attachment" ]; then
+                echo "Attachment file $attachment does not exist"
+                exit 1
+        fi
+
+# sends the email with an attachment
+
+mail -a "$attachment" -s "$subject" "$recipient" <<< "$body"
+
+}
+
+askEmail(){
+    echo "Whom Do you want to send it?"
+    read recipient
+    
+    echo "What is the subject of this email?"
+    read subject
+    
+    echo "What file do you want to Email?"
+    displayFilesInDirectory 'flashcardresources/flashcards'
+    
+    read -r flashcardFile
+      file_path="./flashcardresources/flashcards/$flashcardFile"
+
+    echo "What is the body of the message?"
+    read body
+
+    sendEmail "$recipient" "$subject" "$file_path" "$body"
+
+    
 }
 
 
@@ -114,9 +156,12 @@ getUserInput(){
 
         3)
 
-    viewLeaderboard
+        viewLeaderboard
 
     ;;
+    4)
+        askEmail
+        ;;
 
         0)
 
