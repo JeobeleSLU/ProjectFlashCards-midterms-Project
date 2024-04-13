@@ -88,6 +88,10 @@ askUser(){
 
     print_center 'Press 3 to View Leaderboard'
 
+    print_center 'Press 4 to email'
+
+    print_center "Press 5 to reset all resources of flashcards"
+
     print_center 'Press 0 to Exit the Program'
 
 }
@@ -107,9 +111,14 @@ sendEmail() {
 
 # sends the email with an attachment
 
-mail -a "$attachment" -s "$subject" "$recipient" <<< "$body"
+mail -A "$attachment" -s "$subject" "$recipient" <<< "$body"
 
 }
+resetResources(){
+    rm -rf ./flashcardresources
+    checkForResources
+}
+
 
 askEmail(){
     echo "Whom Do you want to send it?"
@@ -122,14 +131,12 @@ askEmail(){
     displayFilesInDirectory 'flashcardresources/flashcards'
     
     read -r flashcardFile
-      file_path="./flashcardresources/flashcards/$flashcardFile"
+    local file_path="./flashcardresources/flashcards/$flashcardFile"
 
     echo "What is the body of the message?"
     read body
 
-    sendEmail "$recipient" "$subject" "$file_path" "$body"
-
-    
+    sendEmail "$recipient" "$subject" "$file_path" "$body"   
 }
 
 
@@ -159,11 +166,14 @@ getUserInput(){
         viewLeaderboard
 
     ;;
-    4)
+        4)
         askEmail
         ;;
+        5)
+        resetResources
+        ;;
 
-        0)
+    0)
 
             echo " Thank you for using Quizhard!"
 
@@ -302,64 +312,16 @@ displayFilesInDirectory(){
     done
 
 }
+calculateScoreAndUpdateLeaderboard() {
+    local totalQuestions="$1"
+    local correctAnswers="$2"
+    local userName="$3"
+    local leaderboard="./flashcardresources/users/leaderboards.txt"
 
+    local score=$(( correctAnswers * 100 / totalQuestions ))
 
-#allow the user to answer flashcards
-
-startFlashCard(){
-
-    clear
-
-    displayFilesInDirectory 'flashcardresources/flashcards'
-
-    read -r flashcardFile
-
-    local file_path="flashcardresources/flashcards/$flashcardFile"
-
-    local totalQuestions=$(wc -l < "flashcardresources/flashcards/$flashcardFile")
-
-    local correctAnswers=0
-
-    while IFS=':' read -r -u 3 question answer; do
-
-        echo "Question: $question"
-
-        echo "(or enter 'skip' to move to another question)"
-
-        echo "Enter your answer:"
-
-        read -r userAnswer
-
-        userAnswer=$(echo "$userAnswer" | tr '[:upper:]' '[:lower:]')
-
-        answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-
-        if [ "$userAnswer" == "$answer" ]; then
-
-            echo "Correct!"
-
-            correctAnswers=$(( correctAnswers + 1 ))
-
-       elif [ "$userAnswer" == "skip" ]; then
-
-    echo ""
-
-        else
-
-            echo "Incorrect."
-
-        fi
-
-    done 3< "flashcardresources/flashcards/$flashcardFile"
-
-
-    echo "Score: $correctAnswers / $totalQuestions"
-
-    calculateScoreAndUpdateLeaderboard "$totalQuestions" "$correctAnswers" "$userName"
-
+    updateScore "$correctAnswers" "$totalQuestions" "$userName"
 }
-
-
 #display leaderboard of users with their scores
 viewLeaderboard(){
 
@@ -392,15 +354,75 @@ updateScore() {
     fi
 }
 
-calculateScoreAndUpdateLeaderboard() {
-    local totalQuestions="$1"
-    local correctAnswers="$2"
-    local userName="$3"
-    local leaderboard="./flashcardresources/users/leaderboards.txt"
 
-    local score=$(( correctAnswers * 100 / totalQuestions ))
 
-    updateScore "$correctAnswers" "$totalQuestions" "$userName"
+#allow the user to answer flashcards
+
+startFlashCard(){
+
+    clear
+
+    displayFilesInDirectory 'flashcardresources/flashcards'
+    read -r flashcardFile
+
+    read -p "Enter the number of questions you want to attempt (enter 0 to read the whole file): " numQuestions
+
+    if [ "$numQuestions" -eq 0 ]; then
+    local file_path="flashcardresources/flashcards/$flashcardFile"
+    totalQuestions=$(wc -l < "$file_path")
+    else
+    totalQuestions=$numQuestions
+    fi
+
+
+    while IFS=':' read -r -u 3 question answer; do
+
+        echo "Question: $question"
+
+        echo "(or enter 'skip' to move to another question)"
+
+        echo "Enter your answer:"
+
+        read -r userAnswer
+
+        userAnswer=$(echo "$userAnswer" | tr '[:upper:]' '[:lower:]')
+
+        answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+
+        if [ "$userAnswer" == "$answer" ]; then
+
+            echo "Correct!"
+            sleep 1
+            clear
+
+            correctAnswers=$(( correctAnswers + 1 ))
+
+        elif [ "$userAnswer" == "skip" ]; then
+
+            echo ""
+            clear
+
+        else
+
+            echo "Incorrect. The correct answer is: $answer"
+            sleep 1 
+            clear
+
+        fi
+
+        if [ "$numQuestions" -ne 0 ]; then
+            numQuestions=$((numQuestions - 1))
+        if [ "$numQuestions" -eq 0 ]; then
+                break
+            fi
+        fi
+
+    done 3< "flashcardresources/flashcards/$flashcardFile"
+
+    echo "Score: $correctAnswers / $totalQuestions"
+
+    calculateScoreAndUpdateLeaderboard "$correctAnswers" "$totalQuestions"  "$userName"
+
 }
 
 
@@ -418,7 +440,8 @@ checkForResources(){
 fi
 
 }
-
+checkForResources
+askForUserName
 
 while true; do #main loop
 
