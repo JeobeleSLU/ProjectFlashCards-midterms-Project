@@ -81,6 +81,8 @@ askForUserName(){
 #ask the user what they want to do
 
 askUser(){
+    sleep 1
+    clear
 
     print_center 'Press 1 to Create new Flashcards'
 
@@ -88,9 +90,11 @@ askUser(){
 
     print_center 'Press 3 to View Leaderboard'
 
-    print_center 'Press 4 to email'
+    print_center 'Press 4 to email flashcards!'
 
-    print_center "Press 5 to reset all resources of flashcards"
+    print_center "Press 5 to edit Flashcards"
+
+    print_center "Press 6 to reset resources"
 
     print_center 'Press 0 to Exit the Program'
 
@@ -187,7 +191,12 @@ getUserInput(){
         4)
         askEmail
         ;;
+        
         5)
+        editFlashcards
+
+        ;;
+        6)
         resetResources
         ;;
 
@@ -371,6 +380,84 @@ updateScore() {
         echo "$userName:$correctAnswer/$totalQuestions" >> "$leaderboard"
     fi
 }
+editFlashcards() {
+    clear
+    displayFilesInDirectory 'flashcardresources/flashcards'
+    echo "Enter the name of the file you want to edit:"
+    read -r flashcardFile
+    local file_path="flashcardresources/flashcards/$flashcardFile"
+
+    if [ ! -f "$file_path" ]; then
+        echo "File does not exist."
+        return 1
+    fi
+
+    echo "Current content of $flashcardFile:"
+    cat "$file_path"
+
+    echo "Choose an action:"
+    echo "1. Add a question"
+    echo "2. Delete a question"
+    echo "3. Edit a question"
+    echo "4. Exit Edit"
+    
+    read -r action
+
+    case $action in
+        1) # Add a question
+            echo "Enter the new question:"
+            read -r new_question
+
+            echo "Enter the answer to the question:"
+            read -r new_answer
+
+            echo "$new_question:$new_answer" >> "$file_path"
+
+            echo "Question added successfully!"
+            ;;
+        2) # Delete a question
+            echo "Enter the question you want to delete:"
+            read -r question_to_delete
+
+            # Temporarily store contents except the line with the specified question
+            grep -v "$question_to_delete" "$file_path" > "$file_path.tmp"
+
+            # Overwrite the original file with the temporary file
+            mv "$file_path.tmp" "$file_path"
+
+            echo "Question deleted successfully!"
+            ;;
+        3) # Edit a question
+            echo "Enter the question you want to edit:"
+            read -r question_to_edit
+
+            # Check if the question exists in the file
+            if grep -q "$question_to_edit" "$file_path"; then
+                echo "Enter the new question:"
+                read -r new_question
+
+                echo "Enter the new answer:"
+                read -r new_answer
+
+                # Replace the old question with the new one
+                sed -i "s|$question_to_edit|$new_question:$new_answer|g" "$file_path"
+
+                echo "Question edited successfully!"
+            else
+                echo "Question not found in the file."
+            fi
+            ;;
+        4) 
+            echo "Exiting edit mode ...."
+            sleep 1
+            clear
+            ;;
+        *)
+            echo "Invalid action."
+            ;;
+    esac
+}
+
 
 
 
@@ -462,12 +549,10 @@ checkForResources
 askForUserName
 
 while true; do #main loop
-
     print_center 'Welcome to QUIZHARD Flashcards Program!' #display
 
     askUser #calls the function askUser
 
     getUserInput #calls the gerUserInput
-
 done
 
