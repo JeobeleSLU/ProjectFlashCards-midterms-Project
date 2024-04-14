@@ -115,7 +115,17 @@ mail -A "$attachment" -s "$subject" "$recipient" <<< "$body"
 
 }
 resetResources(){
-    rm -rf ./flashcardresources
+    local uAnswer
+    if [ ! -d "./flashcardresources" ]; then
+        echo "No Resources found!" 
+    else 
+        echo "Are you sure you want to reset resources? \n all resources leaderboards and flashcards will be deleted and cannot be retrieved! "
+        read uAnswer
+    
+        if [ $uAnswer == "yes" ]; then
+            rm -rf ./flashcardresources
+        fi
+    fi
     checkForResources
 }
 
