@@ -119,11 +119,19 @@ resetResources(){
     if [ ! -d "./flashcardresources" ]; then
         echo "No Resources found!" 
     else 
-        echo "Are you sure you want to reset resources? \n all resources leaderboards and flashcards will be deleted and cannot be retrieved! "
+    clear
+        print_center "All resources leaderboards and flashcards will be deleted and cannot be retrieved! "
+        print_center "Are you sure you want to reset resources?"
+        sleep 1
+        print_center "enter yes to reset!"
         read uAnswer
     
         if [ $uAnswer == "yes" ]; then
             rm -rf ./flashcardresources
+        elif [ $uAnswer == "no" ]; then
+            :
+        else 
+            echo "$uAnswer is not a valid answer!"
         fi
     fi
     checkForResources
